@@ -1,4 +1,5 @@
 <?php 
+    session_start();
     // TODO: trim unneeded error variables
     $email = $err_email = "";
     $first_name =  $err_first_name = "";
@@ -41,7 +42,8 @@
 
                 $mysqli->close();
                 // TODO: wrap this in a session so we know which user is logged in
-                header("Location: "."./index.html");
+                $_SESSION["userSession"] = $email;
+                header("Location: "."./landingPage.php");
                 die();
             }
             $mysqli->close();
