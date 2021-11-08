@@ -3,9 +3,9 @@
     <a href="#" class="navbar-brand">MeTube</a>
     <div class="navbar-nav ml-auto">
         <?php 
-            if ($user_id) {
+            if ($signed_in_user_id) {
                 echo "
-                    <a href='#' class='nav-item nav-link text-white'>$user_id</a>
+                    <a href='./userView.php' class='nav-item nav-link text-white'>$signed_in_user_id</a>
                     <a href='./signOut.php' class='nav-item nav-link'>Sign Out</a>
                 ";
             } else {

@@ -57,7 +57,7 @@
                 </div>
             </div>
             <?php
-                if ($user_id) {
+                if ($signed_in_user_id) {
                     echo "
                     <div class='col-4'>
                         <div class='p-3 bg-light'>

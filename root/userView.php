@@ -1,6 +1,6 @@
 <?php 
     include("./components/Session.php");
-    if (!$user_id) {exit;}
+    if (!$signed_in_user_id) {exit;}
     include("./components/MediaThumbnail.php");
     $user_uploads = "";
 
@@ -13,7 +13,7 @@
 
     $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description FROM Media WHERE User_ID=?") 
     or die("Error: ".$mysqli->error);
-    $stmt->bind_param("s", $user_id);
+    $stmt->bind_param("s", $signed_in_user_id);
     $stmt->execute();
     $res = $stmt->get_result();
     if ($res->num_rows != 0) {
@@ -41,7 +41,7 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
-    <?php echo "<h3>$user_id</h3>" ?>
+    <?php echo "<h3>$signed_in_user_id</h3>" ?>
     <a href="./upload.php" class="btn btn-secondary text-white">Upload</a>
     <h3>Your Media</h3>
     <?php echo ($user_uploads) ? $user_uploads : "No media found."; ?>

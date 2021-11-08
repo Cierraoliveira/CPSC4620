@@ -38,7 +38,7 @@
                                 "CPSC4620-MeTube_uk72");
             // sql statement - media table
             $stmt = $mysqli -> prepare("INSERT INTO Media VALUES(?,?,?,?,?,?,?,?,?)") or die("Error: ".$mysqli->error);
-            $stmt -> bind_param('sssssssss',$media_id, $path, $title, $description, $date, $views, $category, $rating, $user_id);
+            $stmt -> bind_param('sssssssss',$media_id, $path, $title, $description, $date, $views, $category, $rating, $signed_in_user_id);
             $stmt -> execute();
             // sql statement - keywords
             foreach($keywords_split as $kw){
@@ -68,7 +68,7 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
-    <?php if (!$user_id) {exit;} ?>
+    <?php if (!$signed_in_user_id) {exit;} ?>
     <div class="container w-25 p-3 bg-light">
         <h3>Upload</h3>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" autocomplete="off" enctype="multipart/form-data">

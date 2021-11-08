@@ -1,6 +1,6 @@
 <?php 
     include("./components/Session.php");
-    if (!$user_id) {exit;}
+    if (!$signed_in_user_id) {exit;}
     include("./components/MediaFull.php");
 
     $media_id = "";
@@ -17,7 +17,7 @@
                 "CPSC4620-MeTube_uk72"
             );
 
-            $stmt = $mysqli->prepare("SELECT Path, Title, Description FROM Media WHERE Media_ID=?") 
+            $stmt = $mysqli->prepare("SELECT Path, Title, Description, Views, User_ID FROM Media WHERE Media_ID=?") 
             or die("Error: ".$mysqli->error);
             $stmt->bind_param("s", $media_id);
             $stmt->execute();
@@ -29,6 +29,13 @@
                 $path = $row["Path"];
                 $title = $row["Title"];
                 $description = $row["Description"];
+                $views = $row["Views"] + 1;
+                $user_id = $row["User_ID"];
+
+                $stmt = $mysqli->prepare("UPDATE Media SET Views=? WHERE Media_ID=?")
+                or die("Error: ".$mysqli->error);
+                $stmt->bind_param("is", $views, $media_id);
+                $stmt->execute();
             }
             $mysqli->close();
         }
@@ -47,6 +54,6 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
-    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description) ?>
+    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id) ?>
 </body>
 </html>

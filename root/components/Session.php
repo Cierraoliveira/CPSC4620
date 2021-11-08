@@ -1,7 +1,7 @@
 <?php
     session_start();
-    $user_id = "";
+    $signed_in_user_id = "";
     if (isset($_SESSION["session_user_id"])) {
-        $user_id = $_SESSION["session_user_id"];
+        $signed_in_user_id = $_SESSION["session_user_id"];
     }
 ?>
