@@ -18,6 +18,14 @@
         $target_file = basename($_FILES['file']['name']);
         $path = $target_dir . $media_id . $target_file;
 
+        $file_mime_type = $_FILES['file']['type'];
+        $media_type = "IMG";
+        if (strstr($file_mime_type, "video/")) {
+            $media_type = "VID";
+        } else if (strstr($file_mime_type, "audio/")) {
+            $media_type = "AUD";
+        }
+
         $title = $_POST['title'];
         $description = $_POST['description'];
         $keywords = $_POST['keywords'];
@@ -37,8 +45,8 @@
                                 "cpsc4620-metube",
                                 "CPSC4620-MeTube_uk72");
             // sql statement - media table
-            $stmt = $mysqli -> prepare("INSERT INTO Media VALUES(?,?,?,?,?,?,?,?,?)") or die("Error: ".$mysqli->error);
-            $stmt -> bind_param('sssssssss',$media_id, $path, $title, $description, $date, $views, $category, $rating, $signed_in_user_id);
+            $stmt = $mysqli -> prepare("INSERT INTO Media VALUES(?,?,?,?,?,?,?,?,?,?)") or die("Error: ".$mysqli->error);
+            $stmt -> bind_param('ssssssssss',$media_id, $path, $title, $description, $date, $views, $category, $rating, $signed_in_user_id, $media_type);
             $stmt -> execute();
             // sql statement - keywords
             foreach($keywords_split as $kw){
@@ -48,10 +56,11 @@
             };
             // close connection
             $mysqli->close();
+            echo $media_type;
             header("Location: "."./userView.php");
             die();
         } else {
-            $err_upload = "Error uploading file.";
+            $err_upload = "Error uploading file:" . $_FILES['file']['error'];
         }
     }
 ?>

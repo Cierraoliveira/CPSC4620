@@ -11,7 +11,7 @@
         "CPSC4620-MeTube_uk72"
     );
 
-    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description FROM Media WHERE User_ID=?") 
+    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media WHERE User_ID=?") 
     or die("Error: ".$mysqli->error);
     $stmt->bind_param("s", $signed_in_user_id);
     $stmt->execute();
@@ -22,7 +22,8 @@
             $path = $row["Path"];
             $title = $row["Title"];
             $description = $row["Description"];
-            $user_uploads = $user_uploads . MediaThumbnail($media_id, $path, $title, $description);
+            $media_type = $row["Media_Type"];
+            $user_uploads = $user_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type);
         }
     }
     $mysqli->close();
@@ -46,5 +47,10 @@
     <h3>Your Media</h3>
     <?php echo ($user_uploads) ? $user_uploads : "No media found."; ?>
     
+	<h3>Profile update</h3>
+	<a href="./updateProfile.php" class="btn btn-secondary text-white">ProfileUpdate</a>
+	
+	<h3>Contacts</h3>
+	<a href="./userContacts.php" class="btn btn-secondary text-white">Contacts</a>
 </body>
 </html>
