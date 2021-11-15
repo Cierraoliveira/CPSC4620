@@ -1,6 +1,5 @@
 <?php 
     include("./components/Session.php");
-    if (!$signed_in_user_id) {exit;}
     include("./components/MediaFull.php");
 
     $media_id = "";

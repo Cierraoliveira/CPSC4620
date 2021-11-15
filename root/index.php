@@ -1,4 +1,4 @@
-<?php include("./components/Session.php"); ?>
+<?php #include("./components/Session.php"); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +11,7 @@
     <title>MeTube Development</title>
 </head>
 <body>
-    <?php include("./components/NavBar.php"); ?>
+    <!-- <?php include("./components/NavBar.php"); ?> -->
+    <?php include("./homepage.php"); ?>
 </body>
 </html>
