@@ -1,6 +1,6 @@
 <?php ?>
 <div class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a href="#" class="navbar-brand">MeTube</a>
+    <a href="./homepage.php" class="navbar-brand">MeTube</a>
     <div class="navbar-nav ml-auto">
         <?php 
             if ($signed_in_user_id) {

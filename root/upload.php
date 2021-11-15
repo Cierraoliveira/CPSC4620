@@ -96,32 +96,33 @@
             </div>
             <!-- categories field -->
             <div class="form-group">
+                <label for="category">Category:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="music">
+                    <input class="form-check-input" type="radio" name="category" id="music" value="music">
                     <label class="form-check-label" for="music">Music</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="gaming">
+                    <input class="form-check-input" type="radio" name="category" id="gaming" value="gaming">
                     <label class="form-check-label" for="gaming">Gaming</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="animals">
+                    <input class="form-check-input" type="radio" name="category" id="animals" value="animals">
                     <label class="form-check-label" for="animals">Animals</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="sports">
+                    <input class="form-check-input" type="radio" name="category" id="sports" value="sports">
                     <label class="form-check-label" for="sports">Sports</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="comedy">
+                    <input class="form-check-input" type="radio" name="category" id="comedy" value="comedy">
                     <label class="form-check-label" for="comedy">Comedy</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="news">
+                    <input class="form-check-input" type="radio" name="category" id="news" value="news">
                     <label class="form-check-label" for="news">News</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" id="other" checked>
+                    <input class="form-check-input" type="radio" name="category" id="other" value="other" checked>
                     <label class="form-check-label" for="other">Other</label>
                 </div>
             </div>
