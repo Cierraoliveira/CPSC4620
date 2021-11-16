@@ -53,7 +53,7 @@
     }
 
     // most recent data
-    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media ORDER BY Date_Uploaded DESC LIMIT 2") 
+    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type, User_ID FROM Media ORDER BY Date_Uploaded DESC LIMIT 2") 
     or die("Error: ".$mysqli->error);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -65,7 +65,8 @@
             $title = $row["Title"];
             $description = $row["Description"];
             $media_type = $row["Media_Type"];
-            $recent_uploads = $recent_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type);
+            $user_id = $row["User_ID"];
+            $recent_uploads = $recent_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type, $user_id);
         }
     }
     $mysqli->close();

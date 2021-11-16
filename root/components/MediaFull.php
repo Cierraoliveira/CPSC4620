@@ -8,6 +8,11 @@
                         </video>";
         }
 
+        $query = array(
+            "id" => $user_id
+        );
+        $linkChannel = "./channelView.php?" . http_build_query($query);
+
         return "
             <div class='container'>
                 <div class='d-flex justify-content-center'>
@@ -23,7 +28,7 @@
                             <a href=$path download=$title class='ml-auto btn btn-outline-secondary'>Download</a>
                         </div>
                     </div>
-                    <p class='font-weight-bold'>$user_id</p>
+                    <a href='$linkChannel' style='color:black !important'><p class='font-weight-bold'>$user_id</p></a>
                     <p class='border-bottom pb-3'>$description</p>
                 </div>
             </div>
