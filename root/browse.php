@@ -14,7 +14,7 @@
             "CPSC4620-MeTube_uk72"
         );
 
-        $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description FROM Media WHERE Category LIKE ?") 
+        $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media WHERE Category LIKE ?") 
         or die("Error: ".$mysqli->error);
         $stmt->bind_param("s", $category);
         $stmt->execute();
@@ -25,7 +25,8 @@
                 $path = $row["Path"];
                 $title = $row["Title"];
                 $description = $row["Description"];
-                $category_media = $category_media . MediaThumbnail($media_id, $path, $title, $description);
+                $media_type = $row["Media_Type"];
+                $category_media = $category_media . MediaThumbnail($media_id, $path, $title, $description, $media_type);
             }
         }
 

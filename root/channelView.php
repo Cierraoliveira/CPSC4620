@@ -1,36 +1,55 @@
-<?php
-    function component_media() {
-        return "
-            <div class='row m-2 p-2 border'>
-                <div class='col'>
-                    <div class='bg-dark' style='width: 320px; height: 240px'></div>
-                </div>
-                <div class='col'>
-                    <h4>Media Title</h4>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro saepe reiciendis eius nisi sit. Esse natus, explicabo, accusamus dolorum qui facere fugiat ratione aperiam voluptatibus ipsa praesentium et placeat. Est?</p>
-                </div>
-            </div>
-        ";
-    }
+<?php 
+    include("./components/Session.php");
+    include("./components/MediaThumbnail.php");
+    
+    $user_id = "";
+    $user_uploads = "";
 
-    function component_msg() {
-        return "
-            <div class='text-left'>
-                <p class='mb-0 text-primary'>User:</p>
-                <p class='border-bottom'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo architecto iste temporibus hic, sint consequatur ipsam porro quam labore suscipit. Labore incidunt ducimus recusandae asperiores perspiciatis accusamus, sint rerum iusto?</p>
-            </div>
-        ";
-    }
+    if (isset($_GET)) {
+        if (isset($_GET["id"])) {
+            $user_id = htmlspecialchars($_GET["id"]);
 
-    function component_msg_reply() {
-        return "
-            <div class='text-right'>
-                <p class='mb-0 text-warning'>User:</p>
-                <p class='border-bottom'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo architecto iste temporibus hic, sint consequatur ipsam porro quam labore suscipit. Labore incidunt ducimus recusandae asperiores perspiciatis accusamus, sint rerum iusto?</p>
-            </div>
-        ";
-    }
+            $mysqli = new mysqli(
+                "mysql1.cs.clemson.edu", 
+                "CPSC4620MTb_8b5n", 
+                "cpsc4620-metube", 
+                "CPSC4620-MeTube_uk72"
+            );
 
+            $stmt = $mysqli->prepare("SELECT ID FROM Users WHERE ID=?") 
+            or die("Error: ".$mysqli->error);
+            $stmt->bind_param("s", $user_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res->num_rows != 0) {
+
+                // redirect to UserView
+                if ($user_id == $signed_in_user_id) {
+                    header("Location: "."./userView.php");
+                    die();
+                }
+
+                $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media WHERE User_ID=?") 
+                or die("Error: ".$mysqli->error);
+                $stmt->bind_param("s", $user_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res->num_rows != 0) {
+                    while ($row = $res->fetch_assoc()) {
+                        $media_id = $row["Media_ID"];
+                        $path = $row["Path"];
+                        $title = $row["Title"];
+                        $description = $row["Description"];
+                        $media_type = $row["Media_Type"];
+                        $user_uploads = $user_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type);
+                    }
+                }
+            } else {
+                $user_id = "";
+            }
+            $mysqli->close();
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -45,41 +64,24 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
+    <h3><?php echo ($user_id) ? $user_id : "Channel not found." ?></h3>
+    <?php
+        if (!$user_id) {
+            echo "</body></html>";
+            exit();
+        }
+    ?>
     <div class="container-fluid">
-        <div class="row g-2">
-            <div class="col">
-                <div class="p-3 bg-light">
-                    <h1>Channel User ID</h1>
-                        <?php echo component_media(); ?>
-                        <?php echo component_media(); ?>
-                        <?php echo component_media(); ?>
-                    </div>
+        <div class="row">
+            <div class="col-8">
+                <h4>Uploads</h4>
+                <div style='max-height:500px; overflow-y:scroll'>
+                    <?php echo ($user_uploads) ? $user_uploads : "No media found."; ?>
                 </div>
             </div>
             <?php
                 if ($signed_in_user_id) {
-                    echo "
-                    <div class='col-4'>
-                        <div class='p-3 bg-light'>
-                            <div class='mb-3'>
-                                <a href='#' class='btn btn-danger'>Subscribe</a>
-                                <a href='#' class='btn btn-warning'>Add Contact</a>
-                            </div>
-                            <h4>Messaging</h4>
-                            <div class='container bg-white mb-3' style='height: 500px; overflow-y: scroll'>";
-                                echo component_msg();
-                                echo component_msg_reply();
-                                echo component_msg();
-                    echo "
-                            </div>
-                            <form action='' method='post'>
-                                <div class='form-group'>
-                                    <input type='text' class='form-control mb-3' placeholder='Message' name='message'>
-                                    <input type='submit' value='Send' class='btn btn-primary'>
-                                </div>
-                            </form>
-                        </div>
-                    </div>";
+                    include("./components/ChannelSidePanel.php");
                 }
             ?>
         </div>

@@ -32,7 +32,7 @@
 
             $sub_ids = implode("','",$sub_array);
 
-            $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description FROM Media 
+            $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media 
                                     WHERE User_ID IN ('".$sub_ids."')") 
                                     or die("Error: ".$mysqli->error);
             $stmt->execute();
@@ -44,7 +44,8 @@
                     $path = $row["Path"];
                     $title = $row["Title"];
                     $description = $row["Description"];
-                    $sub_uploads = $sub_uploads . MediaThumbnail($media_id, $path, $title, $description);
+                    $media_type = $row["Media_Type"];
+                    $sub_uploads = $sub_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type);
                 }
             }
         }
@@ -52,7 +53,7 @@
     }
 
     // most recent data
-    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description FROM Media ORDER BY Date_Uploaded DESC LIMIT 2") 
+    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media ORDER BY Date_Uploaded DESC LIMIT 2") 
     or die("Error: ".$mysqli->error);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -63,7 +64,8 @@
             $path = $row["Path"];
             $title = $row["Title"];
             $description = $row["Description"];
-            $recent_uploads = $recent_uploads . MediaThumbnail($media_id, $path, $title, $description);
+            $media_type = $row["Media_Type"];
+            $recent_uploads = $recent_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type);
         }
     }
     $mysqli->close();

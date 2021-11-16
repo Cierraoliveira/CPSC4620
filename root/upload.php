@@ -56,7 +56,6 @@
             };
             // close connection
             $mysqli->close();
-            echo $media_type;
             header("Location: "."./userView.php");
             die();
         } else {
