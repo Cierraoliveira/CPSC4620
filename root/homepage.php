@@ -6,6 +6,7 @@
     $topRated_uploads ="";
     $sub_ids ="";
     $sub_uploads="";
+    $popular_uploads = "";
 
     $mysqli = new mysqli(
         "mysql1.cs.clemson.edu", 
@@ -33,7 +34,7 @@
             $sub_ids = implode("','",$sub_array);
 
             $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media 
-                                    WHERE User_ID IN ('".$sub_ids."')") 
+                                    WHERE User_ID IN ('".$sub_ids."') ORDER BY Date_Uploaded DESC LIMIT 5") 
                                     or die("Error: ".$mysqli->error);
             $stmt->execute();
             $res = $stmt->get_result();
@@ -53,7 +54,7 @@
     }
 
     // most recent data
-    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type, User_ID FROM Media ORDER BY Date_Uploaded DESC LIMIT 2") 
+    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type, User_ID FROM Media ORDER BY Date_Uploaded DESC LIMIT 5") 
     or die("Error: ".$mysqli->error);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -69,6 +70,25 @@
             $recent_uploads = $recent_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type, $user_id);
         }
     }
+
+    // most popular uploads
+    $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type, User_ID FROM Media ORDER BY Views DESC LIMIT 5") 
+    or die("Error: ".$mysqli->error);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($res->num_rows != 0) {
+        while ($row = $res->fetch_assoc()) {
+            $media_id = $row["Media_ID"];
+            $path = $row["Path"];
+            $title = $row["Title"];
+            $description = $row["Description"];
+            $media_type = $row["Media_Type"];
+            $user_id = $row["User_ID"];
+            $popular_uploads = $popular_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type, $user_id);
+        }
+    }
+
     $mysqli->close();
 
 ?>
@@ -103,26 +123,31 @@
 
         <div class="col-md-8">
             
-            <!--TODO: Fix with sessions; create seperate homepages?-->
-            <div class="row"
-                <?php if(!$signed_in_user_id) echo " style='display:none';"?>>
-                <h4>Subscriptions</h4><BR><BR>
-                <?php echo ($sub_uploads) ? $sub_uploads : "No media found."; ?>
-            </div><BR><BR>
+            <div class="row" <?php if(!$signed_in_user_id) echo " style='display:none';"?>>
+                <h4>Subscriptions</h4>
+            </div>
+            <div style='max-height:300px; overflow-y:scroll' <?php if(!$signed_in_user_id) echo " style='display:none';"?>>
+                <?php 
+                    if($signed_in_user_id){
+                        echo ($sub_uploads) ? $sub_uploads : "No media found."; 
+                    }
+                ?>
+            </div>
             
-            <!-- <div class="row" style="background-color:#DCDCDC;">
-                <form action="#">
-                <input type="text" placeholder="Search..." name="search">
-                <button type="submit"></button>
-                </form>
-            </div> -->
             <div class="row">
                 <h4>Most recently uploaded media</h4>
             </div>
-            <div>
+            <div style='max-height:300px; overflow-y:scroll'>
                 <?php echo ($recent_uploads) ? $recent_uploads : "No media found."; ?>
             </div><BR><BR>
             
+            <div class="row">
+                <h4>Most viewed media</h4>
+            </div>
+            <div style='max-height:300px; overflow-y:scroll'>
+                <?php echo ($popular_uploads) ? $popular_uploads : "No media found."; ?>
+            </div><BR><BR>
+
             <div class="row">
                 <h4>Highest rated media</h4>
             </div>
