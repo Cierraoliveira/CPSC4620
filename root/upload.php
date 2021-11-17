@@ -50,6 +50,7 @@
             $stmt -> execute();
             // sql statement - keywords
             foreach($keywords_split as $kw){
+                $kw = trim($kw);
                 $stmt = $mysqli -> prepare("INSERT INTO Keywords VALUES(?,?)") or die("Error: ".$mysqli->error);
                 $stmt -> bind_param('ss', $kw, $media_id);
                 $stmt -> execute();
