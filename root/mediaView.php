@@ -6,6 +6,7 @@
     $err_media = "";
     $media_comments = "";
     $num_comments = 0;
+    $is_favorite = false;
 
     // rewriting logic for recursing comments
     function fetch_comments(&$client, $r_media_id, $r_reply_id, &$set, $layer=0) {
@@ -84,6 +85,17 @@
                 $media_comments = fetch_comments($mysqli, $media_id, "", $comment_set);
                 $num_comments = count($comment_set);
             }
+
+            // fetch favorites
+            $stmt = $mysqli->prepare("SELECT * FROM Favorites WHERE (User_ID=? AND Media_ID=?)") 
+                or die("Error: ".$mysqli->error);
+            $stmt->bind_param("ss", $signed_in_user_id, $media_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res->num_rows != 0) {
+                $is_favorite = true;
+            }
+            
             $mysqli->close();
         }
         if (isset($_POST["comment"])) {
@@ -108,6 +120,20 @@
             header("Location: ".$_SERVER["PHP_SELF"]."?id=$media_id");
             die();
         }
+        if (isset($_POST["favorite"])) {
+            $mysqli = new mysqli(
+                "mysql1.cs.clemson.edu", 
+                "CPSC4620MTb_8b5n", 
+                "cpsc4620-metube", 
+                "CPSC4620-MeTube_uk72"
+            );
+            $stmt = $mysqli -> prepare("INSERT INTO Favorites VALUES(?,?)") or die("Error: ".$mysqli->error);
+            $stmt -> bind_param('ss',$signed_in_user_id, $media_id);
+            $stmt -> execute();
+            $mysqli->close();
+            header("Location: ".$_SERVER["PHP_SELF"]."?id=$media_id");
+            die();
+        }
     }
 ?>
 
@@ -123,7 +149,7 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
-    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id, $media_type) ?>
+    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite) ?>
 
     <div class="container">
         <div class="container">

@@ -16,10 +16,10 @@
             $render = "&middot; <a class='d-inline' style='color:black !important;' href=$linkChannel>$display_user</a>";
         }
         return "
-            <div class=''>
+            <div class='border-bottom'>
                 <div class='d-flex'>
                     <a href=$link>
-                        <img class='' style='width:100px;height:100px;object-fit:cover' src=$path alt=$description>
+                        <img style='width:100px;height:100px;object-fit:cover;' src=$path alt=$description>
                     </a>
                     <div class='p-2'>
                         <div class='d-inline'>

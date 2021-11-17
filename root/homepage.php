@@ -33,7 +33,7 @@
 
             $sub_ids = implode("','",$sub_array);
 
-            $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type FROM Media 
+            $stmt = $mysqli->prepare("SELECT Media_ID, Path, Title, Description, Media_Type, User_ID FROM Media 
                                     WHERE User_ID IN ('".$sub_ids."') ORDER BY Date_Uploaded DESC LIMIT 5") 
                                     or die("Error: ".$mysqli->error);
             $stmt->execute();
@@ -46,7 +46,16 @@
                     $title = $row["Title"];
                     $description = $row["Description"];
                     $media_type = $row["Media_Type"];
-                    $sub_uploads = $sub_uploads . MediaThumbnail($media_id, $path, $title, $description, $media_type);
+                    $uploader = $row["User_ID"];
+                    $query = array(
+                        "id" => $uploader
+                    );
+                    $linkChannel = "./channelView.php?" . http_build_query($query);
+                    $sub_uploads = $sub_uploads 
+                    . "<p class='mb-0'>
+                        <a href='$linkChannel' style='color:black !important'><u>$uploader</u></a> 
+                    uploaded:</p>" 
+                    . MediaThumbnail($media_id, $path, $title, $description, $media_type);
                 }
             }
         }
