@@ -1,5 +1,5 @@
 <?php 
-    function MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite) {
+    function MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite, $is_signed_in) {
         $render = "<img class='' style='max-width:640px;max-height:480px;vertical-align:middle' src=$path alt=$description>";
         
         if ($media_type == "VID") {
@@ -28,6 +28,7 @@
                 <button type='submit' class='$style' $disabled>$text</button>
             </form>
         ";
+        if (!$is_signed_in) {$favorite_button = "";}
 
         return "
             <div class='container'>

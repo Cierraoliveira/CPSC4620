@@ -149,7 +149,7 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
-    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite) ?>
+    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite, $signed_in_user_id) ?>
 
     <div class="container">
         <div class="container">

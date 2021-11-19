@@ -5,6 +5,7 @@
     $user_uploads = "";
     $user_subscriptions = "";
     $user_favorites = "";
+    $user_playlists = "";
 
     $mysqli = new mysqli(
         "mysql1.cs.clemson.edu", 
@@ -76,7 +77,7 @@
             } else {
                 $upload_element = "you";
             }
-            // channel link
+            // media link
             $query = array(
                 "id" => $row["Media_ID"]
             );
@@ -85,6 +86,31 @@
                 <p>
                     <a class='font-weight-bold font-underline' style='color:black !important' href='$linkMedia'><u>$title</u></a> uploaded by
                     $upload_element</p>
+            ";
+        }
+    }
+
+    // get playlists
+    $stmt = $mysqli->prepare("SELECT Name, Playlist_ID from Playlists 
+    WHERE User_ID=?")
+    or die("Error: ".$mysqli->error);
+    $stmt -> bind_param('s', $signed_in_user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows != 0) {
+        while ($row = $res->fetch_assoc()) {
+            $name = $row["Name"];
+            $playlist_id = $row["Playlist_ID"];
+            // playlist link
+            $linkPlaylist = "";
+            $query = array(
+                "id" => $playlist_id
+            );
+            $linkPlaylist = "./playlistView.php?" . http_build_query($query);
+            $user_playlists = $user_playlists . "
+                <p>
+                    <a class='font-weight-bold font-underline' style='color:black !important' href='$linkPlaylist'><u>$name</u></a>
+                </p>
             ";
         }
     }
@@ -126,6 +152,12 @@
                         <h4>Your Favorites</h4>
                         <div class="border border-primary p-3" style="max-height:300px; overflow-y:scroll">
                             <?php echo ($user_favorites) ? $user_favorites : "No favorites found."; ?>
+                        </div>
+                    </div>
+                    <div class="">
+                        <h4>Your Playlists</h4>
+                        <div class="border border-primary p-3" style="max-height:200px; overflow-y:scroll">
+                            <?php echo ($user_playlists) ? $user_playlists : "No playlists found."; ?>
                         </div>
                     </div>
             </div>
