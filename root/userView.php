@@ -115,6 +115,28 @@
         }
     }
 
+    if (isset($_POST["create"])) {
+        $new_playlist_id = uniqid("playlist");
+        $new_name = "New Playlist";
+        $mysqli = new mysqli(
+            "mysql1.cs.clemson.edu", 
+            "CPSC4620MTb_8b5n", 
+            "cpsc4620-metube", 
+            "CPSC4620-MeTube_uk72"
+        );
+        $stmt = $mysqli -> prepare("INSERT INTO Playlists VALUES (?,?,?)") 
+        or die("Error: ".$mysqli->error);
+        $stmt -> bind_param('sss', $signed_in_user_id, $new_name, $new_playlist_id);
+        $stmt -> execute();
+        $mysqli->close();
+        $query = array(
+            "id" => $new_playlist_id
+        );
+        $linkPlaylist = "./playlistView.php?" . http_build_query($query);
+        header("Location: ".$linkPlaylist);
+        die();
+    }
+
     $mysqli->close();
 ?>
 
@@ -159,6 +181,11 @@
                         <div class="border border-primary p-3" style="max-height:200px; overflow-y:scroll">
                             <?php echo ($user_playlists) ? $user_playlists : "No playlists found."; ?>
                         </div>
+                        <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                            <button class="btn btn-warning" type="submit" name="create">
+                                Create New Playlist
+                            </button>
+                        </form>
                     </div>
             </div>
         </div>

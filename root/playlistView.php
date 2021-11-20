@@ -1,5 +1,8 @@
 <?php 
     include("./components/Session.php");
+    if (!$signed_in_user_id) {
+        die();
+    }
     include("./components/MediaListItem.php");
     $err_playlist = "Playlist not found.";
     $playlist = "";
@@ -67,6 +70,38 @@
                 header("Location: ".$_SERVER["PHP_SELF"]."?id=$playlist_id");
                 die();
             }
+
+            if (isset($_POST["editPlaylistName"])) {
+                $mysqli = new mysqli(
+                    "mysql1.cs.clemson.edu", 
+                    "CPSC4620MTb_8b5n", 
+                    "cpsc4620-metube", 
+                    "CPSC4620-MeTube_uk72"
+                );
+                $stmt = $mysqli -> prepare("UPDATE Playlists SET Name=? 
+                WHERE Playlist_ID=?") or die("Error: ".$mysqli->error);
+                $stmt -> bind_param('ss',$_POST["editPlaylistName"], $playlist_id);
+                $stmt -> execute();
+                $mysqli->close();
+                header("Location: ".$_SERVER["PHP_SELF"]."?id=$playlist_id");
+                die();
+            }
+
+            if (isset($_POST["delete"])) {
+                $mysqli = new mysqli(
+                    "mysql1.cs.clemson.edu", 
+                    "CPSC4620MTb_8b5n", 
+                    "cpsc4620-metube", 
+                    "CPSC4620-MeTube_uk72"
+                );
+                $stmt = $mysqli -> prepare("DELETE FROM Playlists WHERE Playlist_ID=?") 
+                or die("Error: ".$mysqli->error);
+                $stmt -> bind_param('s', $playlist_id);
+                $stmt -> execute();
+                $mysqli->close();
+                header("Location: "."./userView.php");
+                die();
+            }
         }
     }
 ?>
@@ -86,8 +121,21 @@
             echo "$err_playlist</body></head></html>";
             die();
         } ?>
-        <h3><?php echo $name ?></h3>
-        <?php echo $playlist ?>
+        <div class="p-3">
+            <div class="d-flex">
+                <form action="<?php htmlspecialchars($_SERVER['PHP_SELF'] . '?id=$playlist_id'); ?>" method="post">
+                    <input class="" name='editPlaylistName' type="text" value="<?php echo $name ?>" required=true placeholder="Playlist Name" autocomplete=false/>
+                    <button class="btn btn-outline-primary" type="submit">Save Name</button>
+                </form>
+                <form class="ml-1" action="<?php htmlspecialchars($_SERVER['PHP_SELF'] . '?id=$playlist_id'); ?>" method="post">
+                    <button class="btn btn-outline-danger" type="submit" name="delete">Delete Playlist</button>
+                </form>
+            </div>
+            <?php echo $playlist ?>
+            <div>
+                <a href="./userView.php">Back</a>
+            </div>
+        </div>
     </body>
 </head>
 </html>

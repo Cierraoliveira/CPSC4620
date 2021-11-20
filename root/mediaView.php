@@ -45,6 +45,17 @@
         ";
     }
 
+    // function render_playlists() {
+    //     return "
+    //         <form>
+    //             <select name='playlist'>
+    //                 <option value='$p_playlist_id'>$p_playlist_name</option>
+    //             </select>
+    //             <button type='submit' class='btn btn-danger'>Add to playlist</button>
+    //         </form>
+    //     ";
+    // }
+
     if (isset($_GET)) {
         if (isset($_GET["id"])) {
             $media_id = htmlspecialchars($_GET["id"]);
@@ -95,6 +106,28 @@
             if ($res->num_rows != 0) {
                 $is_favorite = true;
             }
+
+            // fetch playlists to add to
+            $stmt = $mysqli->prepare("SELECT Name, Playlist_ID from Playlists 
+            WHERE User_ID=?") or die("Error: ".$mysqli->error);
+            $stmt -> bind_param('s', $signed_in_user_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+
+            if ($res->num_rows != 0) {
+                $action = htmlspecialchars($_SERVER["PHP_SELF"] . "?id=$media_id");
+                $playlist_add = "<form action='$action' method='post'><select name='playlist'>";
+                while ($row = $res->fetch_assoc()) {
+                    $p_name = $row["Name"];
+                    $p_id = $row["Playlist_ID"];
+                    $playlist_add = $playlist_add . "<option value='$p_id'>$p_name</option>";
+                }
+                $playlist_add = $playlist_add . "</select>
+                <button type='submit' class='btn btn-danger'>Add to playlist</button>
+                </form>";
+            } else {
+                $playlist_add = "";
+            }
             
             $mysqli->close();
         }
@@ -120,6 +153,7 @@
             header("Location: ".$_SERVER["PHP_SELF"]."?id=$media_id");
             die();
         }
+
         if (isset($_POST["favorite"])) {
             $mysqli = new mysqli(
                 "mysql1.cs.clemson.edu", 
@@ -129,6 +163,21 @@
             );
             $stmt = $mysqli -> prepare("INSERT INTO Favorites VALUES(?,?)") or die("Error: ".$mysqli->error);
             $stmt -> bind_param('ss',$signed_in_user_id, $media_id);
+            $stmt -> execute();
+            $mysqli->close();
+            header("Location: ".$_SERVER["PHP_SELF"]."?id=$media_id");
+            die();
+        }
+
+        if (isset($_POST["playlist"])) {
+            $mysqli = new mysqli(
+                "mysql1.cs.clemson.edu", 
+                "CPSC4620MTb_8b5n", 
+                "cpsc4620-metube", 
+                "CPSC4620-MeTube_uk72"
+            );
+            $stmt = $mysqli -> prepare("INSERT INTO PlaylistMedia VALUES (?,?)") or die("Error: ".$mysqli->error);
+            $stmt -> bind_param('ss', $_POST["playlist"], $media_id);
             $stmt -> execute();
             $mysqli->close();
             header("Location: ".$_SERVER["PHP_SELF"]."?id=$media_id");
@@ -152,6 +201,9 @@
     <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite, $signed_in_user_id) ?>
 
     <div class="container">
+        <div class="container mb-2 d-flex">
+            <?php echo $playlist_add ?>
+        </div>
         <div class="container">
             <h5><span class="font-weight-bold"><?php echo $num_comments; ?></span> Comments</h5>
             <ul id="commentsList" class="list-group mb-3" style="max-height:400px;overflow-y:scroll"><?php echo $media_comments; ?></ul>

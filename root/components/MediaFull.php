@@ -48,6 +48,7 @@
                     </div>
                     <a href='$linkChannel' style='color:black !important'><p class='font-weight-bold'>$user_id</p></a>
                     <p class='border-bottom pb-3'>$description</p>
+                    
                 </div>
             </div>
         ";
