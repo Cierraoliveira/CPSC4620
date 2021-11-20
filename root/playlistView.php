@@ -42,7 +42,7 @@
                             $title = $row["Title"];
                             $uploader = $row["User_ID"];
                             $media_id = $row["Media_ID"];
-                            $playlist = $playlist . MediaListItem($signed_in_user_id, $title, $uploader, $media_id);
+                            $playlist = $playlist . MediaListItem($signed_in_user_id, $title, $uploader, $media_id, $playlist_id);
                         }
                     } else {
                         $playlist = "No items found.";
@@ -50,6 +50,22 @@
                 }
 
                 $mysqli->close();
+            }
+            
+            if (isset($_POST["remove"])) {
+                $mysqli = new mysqli(
+                    "mysql1.cs.clemson.edu", 
+                    "CPSC4620MTb_8b5n", 
+                    "cpsc4620-metube", 
+                    "CPSC4620-MeTube_uk72"
+                );
+                $stmt = $mysqli -> prepare("DELETE FROM PlaylistMedia 
+                WHERE (Playlist_ID=? AND Media_ID=?)") or die("Error: ".$mysqli->error);
+                $stmt -> bind_param('ss',$playlist_id, $_POST["remove"]);
+                $stmt -> execute();
+                $mysqli->close();
+                header("Location: ".$_SERVER["PHP_SELF"]."?id=$playlist_id");
+                die();
             }
         }
     }
