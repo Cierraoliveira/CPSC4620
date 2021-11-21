@@ -5,6 +5,7 @@
     $user_uploads = "";
     $user_subscriptions = "";
     $user_favorites = "";
+    $user_playlists = "";
 
     $mysqli = new mysqli(
         "mysql1.cs.clemson.edu", 
@@ -76,7 +77,7 @@
             } else {
                 $upload_element = "you";
             }
-            // channel link
+            // media link
             $query = array(
                 "id" => $row["Media_ID"]
             );
@@ -87,6 +88,53 @@
                     $upload_element</p>
             ";
         }
+    }
+
+    // get playlists
+    $stmt = $mysqli->prepare("SELECT Name, Playlist_ID from Playlists 
+    WHERE User_ID=?")
+    or die("Error: ".$mysqli->error);
+    $stmt -> bind_param('s', $signed_in_user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows != 0) {
+        while ($row = $res->fetch_assoc()) {
+            $name = $row["Name"];
+            $playlist_id = $row["Playlist_ID"];
+            // playlist link
+            $linkPlaylist = "";
+            $query = array(
+                "id" => $playlist_id
+            );
+            $linkPlaylist = "./playlistView.php?" . http_build_query($query);
+            $user_playlists = $user_playlists . "
+                <p>
+                    <a class='font-weight-bold font-underline' style='color:black !important' href='$linkPlaylist'><u>$name</u></a>
+                </p>
+            ";
+        }
+    }
+
+    if (isset($_POST["create"])) {
+        $new_playlist_id = uniqid("playlist");
+        $new_name = "New Playlist";
+        $mysqli = new mysqli(
+            "mysql1.cs.clemson.edu", 
+            "CPSC4620MTb_8b5n", 
+            "cpsc4620-metube", 
+            "CPSC4620-MeTube_uk72"
+        );
+        $stmt = $mysqli -> prepare("INSERT INTO Playlists VALUES (?,?,?)") 
+        or die("Error: ".$mysqli->error);
+        $stmt -> bind_param('sss', $signed_in_user_id, $new_name, $new_playlist_id);
+        $stmt -> execute();
+        $mysqli->close();
+        $query = array(
+            "id" => $new_playlist_id
+        );
+        $linkPlaylist = "./playlistView.php?" . http_build_query($query);
+        header("Location: ".$linkPlaylist);
+        die();
     }
 
     $mysqli->close();
@@ -127,6 +175,17 @@
                         <div class="border border-primary p-3" style="max-height:300px; overflow-y:scroll">
                             <?php echo ($user_favorites) ? $user_favorites : "No favorites found."; ?>
                         </div>
+                    </div>
+                    <div class="">
+                        <h4>Your Playlists</h4>
+                        <div class="border border-primary p-3" style="max-height:200px; overflow-y:scroll">
+                            <?php echo ($user_playlists) ? $user_playlists : "No playlists found."; ?>
+                        </div>
+                        <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                            <button class="btn btn-warning" type="submit" name="create">
+                                Create New Playlist
+                            </button>
+                        </form>
                     </div>
             </div>
         </div>
