@@ -7,6 +7,9 @@
         if ($media_type == "VID") {
             $path = "./assets/video.svg";
         }
+        if ($media_type == "AUD") {
+            $path = "./assets/audio.svg";
+        }
         $render = "";
         if ($display_user) {
             $query = array(

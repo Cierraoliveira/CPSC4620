@@ -1,11 +1,17 @@
 <?php 
-    function MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite, $is_signed_in) {
+    function MediaFull($path, $title, $description, $category, $views, $user_id, $media_type, $media_id, $is_favorite, $is_signed_in, $keywords) {
         $render = "<img class='' style='max-width:640px;max-height:480px;vertical-align:middle' src=$path alt=$description>";
         
         if ($media_type == "VID") {
             $render = "<video width='640' height='480' controls alt=$description>
                             <source src=$path type='video/mp4'>
                         </video>";
+        }
+
+        if ($media_type == "AUD") {
+            $render = "<audio width='640' height='480' controls alt=$description>
+                            <source src=$path type='audio/mpeg'>
+                        </audio>";
         }
 
         $query = array(
@@ -47,7 +53,10 @@
                         </div>
                     </div>
                     <a href='$linkChannel' style='color:black !important'><p class='font-weight-bold'>$user_id</p></a>
-                    <p class='border-bottom pb-3'>$description</p>
+                    <p>$description</p>
+                    <small class='my-auto font-weight-light'><b>Category: </b>$category</small></BR>
+                    <small class='my-auto font-weight-light'><b>Keywords: </b>$keywords</small>
+                    <p class='border-bottom pb-3'></p>
                     
                 </div>
             </div>

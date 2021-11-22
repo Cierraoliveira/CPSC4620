@@ -6,6 +6,7 @@
     $err_media = "";
     $media_comments = "";
     $num_comments = 0;
+    $keywords = "";
     $is_favorite = false;
 
     // rewriting logic for recursing comments
@@ -67,7 +68,7 @@
                 "CPSC4620-MeTube_uk72"
             );
 
-            $stmt = $mysqli->prepare("SELECT Path, Title, Description, Views, User_ID, Media_Type FROM Media WHERE Media_ID=?") 
+            $stmt = $mysqli->prepare("SELECT Path, Title, Description, Category, Views, User_ID, Media_Type FROM Media WHERE Media_ID=?") 
             or die("Error: ".$mysqli->error);
             $stmt->bind_param("s", $media_id);
             $stmt->execute();
@@ -79,6 +80,7 @@
                 $path = $row["Path"];
                 $title = $row["Title"];
                 $description = $row["Description"];
+                $category = $row["Category"];
                 $views = $row["Views"] + 1;
                 $user_id = $row["User_ID"];
                 $media_type = $row["Media_Type"];
@@ -127,6 +129,19 @@
                 </form>";
             } else {
                 $playlist_add = "";
+            }
+
+            // get keywords
+            $stmt = $mysqli->prepare("SELECT Keyword FROM Keywords WHERE Media_ID=?") 
+            or die("Error: ".$mysqli->error);
+            $stmt->bind_param("s", $media_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res->num_rows != 0) {
+                while ($row = $res->fetch_assoc()){
+                    $keywords =$keywords.($keywords == '' ? '' : ', ').$row["Keyword"];
+                }
+                
             }
             
             $mysqli->close();
@@ -198,7 +213,7 @@
 </head>
 <body>
     <?php include("./components/NavBar.php"); ?>
-    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $views, $user_id, $media_type, $media_id, $is_favorite, $signed_in_user_id) ?>
+    <?php echo ($err_media) ? $err_media : MediaFull($path, $title, $description, $category, $views, $user_id, $media_type, $media_id, $is_favorite, $signed_in_user_id, $keywords) ?>
 
     <div class="container">
         <div class="container mb-2 d-flex">
