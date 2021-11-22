@@ -197,5 +197,7 @@
 	
 	<h3>Contacts</h3>
 	<a href="./userContacts.php" class="btn btn-secondary text-white">Contacts</a>
+
+    <a href="./messageView.php" class="btn btn-link">Messaging</a>
 </body>
 </html>
