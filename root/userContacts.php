@@ -49,10 +49,21 @@
 		}
 		//Checks for non-empty string before removing id from list
 		if ($remove_email != "") {
-			$stmt = $mysqli->prepare("DELETE FROM Contacts WHERE User_ID=? AND Contact_ID=?") or die("Error: ".$mysqli->error);
+			// check if user is in contact list
+			$stmt = $mysqli->prepare("SELECT Contact_ID FROM Contacts WHERE User_ID=? AND Contact_ID=?") or die("Error: ".$mysqli->error);
 			$stmt->bind_param("ss", $signed_in_user_id, $remove_email);
 			$stmt->execute();
-			$err_remove_email = "$remove_email removed from contact list.";
+			$res = $stmt->get_result();
+			if ($res->num_rows == 0) {
+				$err_remove_email = "$remove_email is not in your contact list.";
+			}
+			else{
+				$stmt = $mysqli->prepare("DELETE FROM Contacts WHERE User_ID=? AND Contact_ID=?") or die("Error: ".$mysqli->error);
+				$stmt->bind_param("ss", $signed_in_user_id, $remove_email);
+				$stmt->execute();
+				$err_remove_email = "$remove_email removed from contact list.";
+			}
+			
 		}
 		$contact_email = "";
 		$remove_email = "";
@@ -110,7 +121,7 @@
 				value="<?php echo $remove_email;?>">
 				<span class="text-danger"><?php echo $err_remove_email; ?></span>
 			</div>
-			<button type="submit" class="btn btn-primary">Add</button>
+			<button type="submit" class="btn btn-primary">Submit</button>
 		</form>
 	</div>
 	<!-- Contact List -->

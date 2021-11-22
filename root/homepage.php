@@ -141,7 +141,7 @@
                         echo ($sub_uploads) ? $sub_uploads : "No media found."; 
                     }
                 ?>
-            </div>
+            </div><BR>
             
             <div class="row">
                 <h4>Most recently uploaded media</h4>
@@ -157,9 +157,6 @@
                 <?php echo ($popular_uploads) ? $popular_uploads : "No media found."; ?>
             </div><BR><BR>
 
-            <div class="row">
-                <h4>Highest rated media</h4>
-            </div>
 
         </div>
     </div>
