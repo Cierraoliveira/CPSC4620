@@ -27,11 +27,15 @@
         }
     }
 
-    function render_message($sender, $recipient, $body, $id, $r_id='') {
+    function render_message($recipient, $body, $id, $sender='', $r_id='') {
+        $sender_html = "<div>From: <span class='font-weight-bold'>$sender</span></div>";
+        if ($sender == '') {
+            $sender_html = "";
+        }
         return "
         <div id='$id' class='border-bottom pb-2'>
             <div>To: <span class='font-weight-bold'>$recipient</span></div>
-            <div>From: <span class='font-weight-bold'>$sender</span></div>
+            $sender_html
             <div>$body</div>
         </div>
         ";
@@ -49,11 +53,46 @@
             $msg_sender = $row["Sender_ID"];
             $msg_recipient = $row["Recipient_ID"];
             $msg_body = $row["Message"];
-            $msg_id = uniqid();
+            $msg_id = $row["Message_ID"];
             $user_sent_messages = $user_sent_messages 
-            . render_message($msg_sender, $msg_recipient, $msg_body, $msg_id);
+            . render_message($msg_recipient, $msg_body, $msg_id);
         }
     }
+
+    // fetch recieved messages
+    $stmt = $mysqli->prepare("SELECT * from Messages 
+    WHERE Recipient_ID=?") or die("Error: ".$mysqli->error);
+    $stmt -> bind_param('s', $signed_in_user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($res->num_rows != 0) {
+        while ($row = $res->fetch_assoc()) {
+            $msg_sender = $row["Sender_ID"];
+            $msg_recipient = $row["Recipient_ID"];
+            $msg_body = $row["Message"];
+            $msg_id = $row["Message_ID"];
+            $user_recieved_messages = $user_recieved_messages 
+            . render_message($msg_recipient, $msg_body, $msg_id, $msg_sender);
+        }
+    }
+
+    if (isset($_POST["recipient"]) && isset($_POST["body"])) {
+        $stmt = $mysqli->prepare("INSERT INTO Messages VALUES (?,?,?,?,?)")  
+        or die("Error: ".$mysqli->error);
+        $i = uniqid();
+        $rid = '';
+        $stmt -> bind_param('sssss', 
+            $signed_in_user_id, 
+            $_POST["recipient"], 
+            $_POST["body"],
+            $i,
+            $rid);
+        $stmt->execute();
+        header("Location: ".$_SERVER["PHP_SELF"]);
+        die();
+    }
+    $mysqli->close();
 ?>
 
 <!DOCTYPE html>
@@ -78,8 +117,8 @@
                 </div>
                 <div class="border">
                     <h5>Compose Message</h5>
-                    <form>
-                        <div>
+                    <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                        <div id='recipient-div'>
                             To: 
                             <select name='recipient' 
                             <?php echo ($user_contacts) ? '' : 'disabled'; ?>>
@@ -90,7 +129,9 @@
                         <div>
                             <textarea
                             class='form-control'
-                            type='text' 
+                            type='text'
+                            required='true' 
+                            name='body'
                             placeholder='Message Body'></textarea>
                         </div>
                         <button type='submit' class='btn btn-primary'>Send</button>
