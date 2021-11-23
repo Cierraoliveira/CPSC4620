@@ -1,6 +1,6 @@
 <?php ?>
 <div class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a href="./homepage.php" class="navbar-brand">MeTube</a>
+    <a href="./index.php" class="navbar-brand">MeTube</a>
     <form class="form-inline my-2 my-lg-0" action="./search.php" method="post">
       <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search" aria-label="Search">
       <button class="nav-item btn btn-outline-light" type="submit">Search</button>
