@@ -4,7 +4,7 @@
             <div class="d-flex">
                 <form action="<?php if (!$is_subscribed) {echo htmlspecialchars($_SERVER["PHP_SELF"] . "?id=$user_id");} else {echo "";} ?>" method='post'>
                     <input type="hidden" name="subscribe" value=<?php echo $is_subscribed; ?>>
-                    <button type='submit' class="btn <?php echo (!$is_subscribed) ? 'btn-danger' : 'btn-outline-danger'; ?>" <?php echo ($is_subscribed) ? 'disabled' : ''; ?>><?php echo (!$is_subscribed) ? 'Subscribe' : 'Subscribed'; ?></button>
+                    <button type='submit' class="btn <?php echo (!$is_subscribed) ? 'btn-danger' : 'btn-outline-danger'; ?>"><?php echo (!$is_subscribed) ? 'Subscribe' : 'Unsubscribe'; ?></button>
                 </form>
                 <!-- <a href='#' class='btn btn-warning'>Add Contact</a> -->
             </div>
