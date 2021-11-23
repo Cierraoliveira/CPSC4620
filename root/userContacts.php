@@ -42,7 +42,14 @@
 					$stmt = $mysqli->prepare("INSERT INTO Contacts VALUES (?, ?)") or die("Error: ".$mysqli->error);
 					$stmt->bind_param("ss", $signed_in_user_id, $contact_email);
 					$stmt->execute();
+
+					//Add user as contact to other user's list
+					$stmt = $mysqli->prepare("INSERT INTO Contacts VALUES (?, ?)") or die("Error: ".$mysqli->error);
+					$stmt->bind_param("ss",$contact_email, $signed_in_user_id);
+					$stmt->execute();
+
 					$err_email = "$contact_email added to contact list.";
+
 					
 				}
 			}
@@ -61,6 +68,11 @@
 				$stmt = $mysqli->prepare("DELETE FROM Contacts WHERE User_ID=? AND Contact_ID=?") or die("Error: ".$mysqli->error);
 				$stmt->bind_param("ss", $signed_in_user_id, $remove_email);
 				$stmt->execute();
+
+				$stmt = $mysqli->prepare("DELETE FROM Contacts WHERE User_ID=? AND Contact_ID=?") or die("Error: ".$mysqli->error);
+				$stmt->bind_param("ss",$remove_email, $signed_in_user_id);
+				$stmt->execute();
+
 				$err_remove_email = "$remove_email removed from contact list.";
 			}
 			
@@ -82,6 +94,20 @@
             $user_contacts = $user_contacts . ContactList($contact_id);
         }
     }
+	// //collects contact list into user_contacts
+    // $stmt = $mysqli->prepare("SELECT User_ID FROM Contacts WHERE Contact_ID=?") 
+    // or die("Error: ".$mysqli->error);
+    // $stmt->bind_param("s", $signed_in_user_id);
+    // $stmt->execute();
+    // $res = $stmt->get_result();
+
+    // if ($res->num_rows != 0) {
+    //     while ($row = $res->fetch_assoc()) {
+    //         $contact_id = $row["User_ID"];
+    //         $user_contacts = $user_contacts . ContactList($contact_id);
+    //     }
+    // }
+
     $mysqli->close();
 ?>
 
