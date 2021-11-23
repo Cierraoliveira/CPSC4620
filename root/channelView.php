@@ -62,18 +62,36 @@
             }
             $mysqli->close();
         }
-        if (isset($_POST["subscribe"]) && ($_POST["subscribe"] == false)) {
-            $mysqli = new mysqli(
-                "mysql1.cs.clemson.edu", 
-                "CPSC4620MTb_8b5n", 
-                "cpsc4620-metube", 
-                "CPSC4620-MeTube_uk72"
-            );
-            $stmt = $mysqli -> prepare("INSERT INTO Subscriptions VALUES(?,?)") or die("Error: ".$mysqli->error);
-            $stmt -> bind_param('ss',$signed_in_user_id, $user_id);
-            $stmt -> execute();
-            header("Location: ".$_SERVER["PHP_SELF"]."?id=$user_id");
-            die();
+        if (isset($_POST["subscribe"])){ 
+            if ($_POST["subscribe"] == false) {
+                $mysqli = new mysqli(
+                    "mysql1.cs.clemson.edu", 
+                    "CPSC4620MTb_8b5n", 
+                    "cpsc4620-metube", 
+                    "CPSC4620-MeTube_uk72"
+                );
+                $stmt = $mysqli -> prepare("INSERT INTO Subscriptions VALUES(?,?)") or die("Error: ".$mysqli->error);
+                $stmt -> bind_param('ss',$signed_in_user_id, $user_id);
+                $stmt -> execute();
+                header("Location: ".$_SERVER["PHP_SELF"]."?id=$user_id");
+                die();
+                $mysqli->close();
+            }
+            else {
+                $mysqli = new mysqli(
+                    "mysql1.cs.clemson.edu", 
+                    "CPSC4620MTb_8b5n", 
+                    "cpsc4620-metube", 
+                    "CPSC4620-MeTube_uk72"
+                );
+                $stmt = $mysqli -> prepare("DELETE FROM Subscriptions WHERE User_ID=? AND Sub_ID=?") or die("Error: ".$mysqli->error);
+                $stmt -> bind_param('ss',$signed_in_user_id, $user_id);
+                $stmt -> execute();
+                header("Location: ".$_SERVER["PHP_SELF"]."?id=$user_id");
+                die();
+                $mysqli->close();
+            }
+            
         }
     }
 ?>
