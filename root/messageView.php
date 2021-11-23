@@ -23,17 +23,17 @@
     if ($res->num_rows != 0) {
         while ($row = $res->fetch_assoc()) {
             $contact_id = $row["Contact_ID"];
-            $user_contacts = $user_contacts . "<option value='$contact_id'>$contact_id</option>";
+            $user_contacts = $user_contacts . "<option id='o-$contact_id' value='$contact_id'>$contact_id</option>";
         }
     }
 
-    function render_message($recipient, $body, $id, $sender='', $r_id='') {
-        $sender_html = "<div>From: <span class='font-weight-bold'>$sender</span></div>";
+    function render_message($layer, $recipient, $body, $id, $sender='', $r_id='') {
+        $sender_html = "<div class='d-flex'><div>From: <span class='font-weight-bold'>$sender</span></div><a id='$id $sender' class='ml-auto' href=''>Reply</a></div>";
         if ($sender == '') {
             $sender_html = "";
         }
         return "
-        <div id='$id' class='border-bottom pb-2'>
+        <div style='margin-left:calc($layer*10px);' id='$id' class='border-bottom pb-2'>
             <div>To: <span class='font-weight-bold'>$recipient</span></div>
             $sender_html
             <div>$body</div>
@@ -41,6 +41,16 @@
         ";
     }
 
+    function render_reply($layer, $recipient, $body, $id, $sender='', $r_id='') {
+        return "
+        <div style='margin-left:calc($layer*10px);' id='$id' class='border-bottom pb-2'>
+            <div>Reply from: <span class='font-weight-bold'>$sender</span></div>
+            <div>$body</div>
+        </div>
+        ";
+    }
+
+    $message_set = array();
     // fetch sent messages
     $stmt = $mysqli->prepare("SELECT * from Messages 
     WHERE Sender_ID=?") or die("Error: ".$mysqli->error);
@@ -54,8 +64,30 @@
             $msg_recipient = $row["Recipient_ID"];
             $msg_body = $row["Message"];
             $msg_id = $row["Message_ID"];
+            $msg_reply = $row["Reply_ID"];
+
             $user_sent_messages = $user_sent_messages 
-            . render_message($msg_recipient, $msg_body, $msg_id);
+            . render_message(0, $msg_recipient, $msg_body, $msg_id);
+
+            $stmt = $mysqli->prepare("SELECT * from Messages 
+            WHERE Reply_ID=?") or die("Error: ".$mysqli->error);
+            $stmt -> bind_param('s', $msg_id);
+            $stmt->execute();
+            $res2 = $stmt->get_result();
+
+            if ($res2->num_rows != 0) {
+                while ($row2 = $res2->fetch_assoc()) {
+                    $temp_msg_sender = $row2["Sender_ID"];
+                    $temp_msg_recipient = $row2["Recipient_ID"];
+                    $temp_msg_body = $row2["Message"];
+                    $temp_msg_id = $row2["Message_ID"];
+                    $msg_reply = $row2["Reply_ID"];
+                    $user_sent_messages = $user_sent_messages 
+                    . render_reply(2, $temp_msg_recipient, $temp_msg_body, $temp_msg_id, $temp_msg_sender);
+                }
+            }
+            
+            
         }
     }
 
@@ -73,7 +105,7 @@
             $msg_body = $row["Message"];
             $msg_id = $row["Message_ID"];
             $user_recieved_messages = $user_recieved_messages 
-            . render_message($msg_recipient, $msg_body, $msg_id, $msg_sender);
+            . render_message(0, $msg_recipient, $msg_body, $msg_id, $msg_sender);
         }
     }
 
@@ -82,6 +114,9 @@
         or die("Error: ".$mysqli->error);
         $i = uniqid();
         $rid = '';
+        if (isset($_POST["reply"])) {
+            $rid = $_POST["reply"];
+        }
         $stmt -> bind_param('sssss', 
             $signed_in_user_id, 
             $_POST["recipient"], 
@@ -112,15 +147,15 @@
         <div class="row">
             <div class="col">
                 <h3>Inbox</h3>
-                <div class="border border-primary p-3" style="max-height:500px; overflow-y:scroll">
+                <div id='inbox-div' class="border border-primary p-3" style="max-height:500px; overflow-y:scroll">
                     <?php echo ($user_recieved_messages) ? $user_recieved_messages : "You have no messages."; ?>
                 </div>
                 <div class="border">
                     <h5>Compose Message</h5>
                     <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-                        <div id='recipient-div'>
-                            To: 
-                            <select name='recipient' 
+                        <div>
+                            <span id='replying-div'></span>To: 
+                            <select id='recipient-input' name='recipient' required
                             <?php echo ($user_contacts) ? '' : 'disabled'; ?>>
                                 <?php echo $user_contacts; ?>
                             </select>
@@ -134,7 +169,8 @@
                             name='body'
                             placeholder='Message Body'></textarea>
                         </div>
-                        <button type='submit' class='btn btn-primary'>Send</button>
+                        <input id='reply-form' type="hidden" name='reply' value=''>
+                        <button id='reply-submit' type='submit' class='btn btn-primary'>Send</button>
                     </form>
                 </div>
             </div>
@@ -148,3 +184,30 @@
     </div>
 </body>
 </html>
+
+<?php echo "
+<script type='text/javascript'>
+    const commentsSection = document.getElementById('inbox-div');
+    const replyLinks = commentsSection.getElementsByTagName('a');
+    Array.from(replyLinks).forEach(link => link.addEventListener('click', function(event) {
+        let recipientInput = document.getElementById('recipient-input');
+        if (recipientInput.disabled === false) {
+            recipientInput.disabled = true;
+            let values = link.id;
+            const valArray = values.split(' ');
+            document.getElementById('o-' + valArray[1]).selected = true;
+            document.getElementById('reply-form').value = valArray[0];
+            document.getElementById('replying-div').innerHTML = 'Replying ';
+        } else {
+            recipientInput.disabled = false;
+            document.getElementById('reply-form').value = '';
+            document.getElementById('replying-div').innerHTML = '';
+        }
+        event.preventDefault();
+    }));
+    document.getElementById('reply-submit').addEventListener('click', function(event) {
+        let recipientInput = document.getElementById('recipient-input');
+        recipientInput.disabled = false;
+    });
+</script>
+";
